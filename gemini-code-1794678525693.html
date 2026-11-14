@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcutooly | Pure Maths & Number Theory</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        /* =========================================
+           PREMIUM DESIGN SYSTEM & THEMES
+           ========================================= */
+        :root {
+            --primary: #2563EB;
+            --primary-hover: #1D4ED8;
+            --accent: #38BDF8;
+            --bg-main: #F8FAFC;
+            --bg-sidebar: #FFFFFF;
+            --bg-card: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --danger: #EF4444;
+            --success: #22C55E;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            --radius: 16px;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-main: #0B1120;
+            --bg-sidebar: #111827;
+            --bg-card: #1E293B;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border: #334155;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); transition: background-color 0.3s, color 0.3s; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        /* LAYOUT */
+        .app-layout { display: flex; height: 100vh; overflow: hidden; }
+
+        /* SIDEBAR */
+        .sidebar { width: 280px; background: var(--bg-sidebar); border-right: 1px solid var(--border); padding: 2rem 1.5rem; display: flex; flex-direction: column; transition: var(--transition); z-index: 100; overflow-y: auto;}
+        .logo { font-size: 1.75rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem; letter-spacing: -0.5px; }
+        .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+        
+        .nav-section-title { font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted); letter-spacing: 1px; padding: 0 1.25rem; margin-top: 1rem; margin-bottom: 0.5rem; }
+        .nav-btn { width: 100%; text-align: left; padding: 0.85rem 1.25rem; border: none; background: transparent; color: var(--text-muted); font-size: 0.95rem; font-weight: 500; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; transition: var(--transition); }
+        .nav-btn:hover { background: var(--bg-main); color: var(--primary); transform: translateX(5px); }
+        .nav-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+
+        /* MAIN CONTENT & TOPBAR */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .topbar { height: 80px; padding: 0 2.5rem; background: var(--bg-main); display: flex; align-items: center; justify-content: space-between; z-index: 10; }
+        .mobile-toggle { display: none; background: none; border: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
+        
+        .search-bar { display: flex; align-items: center; background: var(--bg-card); padding: 0.75rem 1.5rem; border-radius: 30px; width: 450px; border: 1px solid var(--border); box-shadow: var(--shadow); transition: var(--transition); }
+        .search-bar:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); transform: translateY(-1px); }
+        .search-bar input { border: none; background: transparent; outline: none; margin-left: 0.75rem; width: 100%; color: var(--text-main); font-size: 0.95rem; }
+        
+        .topbar-actions { display: flex; align-items: center; gap: 1rem; }
+        .icon-btn { background: var(--bg-card); border: 1px solid var(--border); border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-main); transition: var(--transition); box-shadow: var(--shadow); }
+        .icon-btn:hover { color: var(--primary); transform: rotate(15deg) scale(1.05); border-color: var(--primary); }
+
+        /* VIEWS & ANIMATIONS */
+        .view-container { flex: 1; overflow-y: auto; padding: 1rem 2.5rem 3rem 2.5rem; scroll-behavior: smooth; }
+        .view { display: none; opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; }
+        .view.active { display: block; opacity: 1; transform: translateY(0); animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+        @keyframes slideUp { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
+
+        .welcome-banner { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; padding: 2.5rem; border-radius: var(--radius); margin-bottom: 3rem; box-shadow: 0 15px 30px rgba(37, 99, 235, 0.2); position: relative; overflow: hidden; }
+        .welcome-banner::after { content: ''; position: absolute; top: -50%; right: -10%; width: 300px; height: 300px; background: rgba(255,255,255,0.1); border-radius: 50%; }
+        .welcome-banner h1 { font-size: 2rem; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+        
+        .section-title { margin-bottom: 1.5rem; font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; padding-top: 1rem; }
+
+        /* PREMIUM CARDS WITH ANIMATED BORDERS */
+        .calc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.75rem; }
+        .calc-card { 
+            position: relative; background: var(--bg-card); padding: 1.75rem; border-radius: var(--radius); 
+            cursor: pointer; transition: var(--transition); z-index: 1; overflow: hidden; border: 1px solid var(--border);
+        }
+        
+        .calc-card::before {
+            content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: var(--radius); padding: 2px; 
+            background: linear-gradient(45deg, var(--primary), var(--accent), var(--primary)); background-size: 200% 200%;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor;
+            mask-composite: exclude; opacity: 0; transition: opacity 0.4s ease; animation: gradientBorder 3s ease infinite; z-index: -1;
+        }
+
+        .calc-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px -10px rgba(37, 99, 235, 0.15); border-color: transparent; }
+        .calc-card:hover::before { opacity: 1; }
+        @keyframes gradientBorder { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        .card-icon { font-size: 2.25rem; color: var(--primary); margin-bottom: 1.25rem; display: inline-block; padding: 12px; background: rgba(37, 99, 235, 0.05); border-radius: 12px; transition: var(--transition); }
+        .calc-card:hover .card-icon { transform: scale(1.1); background: rgba(37, 99, 235, 0.1); }
+        .calc-card h3 { margin-bottom: 0.5rem; font-size: 1.1rem; font-weight: 600; }
+        .calc-card p { color: var(--text-muted); font-size: 0.85rem; line-height: 1.4; }
+
+        /* CALCULATOR INTERFACE UI */
+        .calculator-container { max-width: 600px; margin: 0 auto; background: var(--bg-card); padding: 2.5rem; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); }
+        .input-group { margin-bottom: 1.5rem; }
+        .input-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.95rem; color: var(--text-muted); }
+        .input-group input { width: 100%; padding: 1rem 1.25rem; border: 1.5px solid var(--border); border-radius: 10px; background: var(--bg-main); color: var(--text-main); font-size: 1rem; outline: none; transition: var(--transition); }
+        .input-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); background: var(--bg-card); }
+        
+        .btn-primary { width: 100%; background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: white; border: none; padding: 1.15rem; border-radius: 10px; font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: var(--transition); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4); }
+
+        .result-box { margin-top: 2.5rem; padding: 2rem; background: var(--bg-main); border-radius: 12px; border-left: 5px solid var(--primary); overflow: hidden; }
+        .result-box h3 { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 0.75rem; }
+        .result-value { font-size: 2.25rem; font-weight: 700; color: var(--primary); letter-spacing: -1px; word-break: break-word; line-height: 1.2; }
+        
+        .back-btn { background: var(--bg-card); border: 1px solid var(--border); border-radius: 30px; padding: 0.5rem 1.25rem; color: var(--text-main); cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem; font-size: 0.95rem; font-weight: 500; transition: var(--transition); box-shadow: var(--shadow); }
+        .back-btn:hover { background: var(--primary); color: white; border-color: var(--primary); transform: translateX(-5px); }
+
+        /* HISTORY & SETTINGS */
+        .history-list { display: flex; flex-direction: column; gap: 1rem; max-width: 800px; margin: 0 auto; }
+        .history-item { padding: 1.25rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; transition: var(--transition); }
+        .history-title { font-weight: 600; font-size: 1.1rem; margin-bottom: 0.25rem;}
+        .history-res { color: var(--primary); font-size: 1.25rem; font-weight: 700; text-align: right;}
+        .history-date { font-size: 0.85rem; color: var(--text-muted); }
+        
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; max-width: 800px; margin-left: auto; margin-right: auto; }
+        .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); padding: 0.75rem 1.25rem; border-radius: 8px; cursor: pointer; font-weight: 600; transition: var(--transition); }
+        .btn-danger:hover { background: var(--danger); color: white; }
+
+        .settings-group { background: var(--bg-card); padding: 2rem; border-radius: var(--radius); border: 1px solid var(--border); margin-top: 1.5rem; max-width: 800px; margin-left: auto; margin-right: auto; box-shadow: var(--shadow); }
+        .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 0; border-bottom: 1px solid var(--border); }
+        .setting-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+        .switch { position: relative; display: inline-block; width: 52px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border); transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        @media (max-width: 992px) {
+            .sidebar { position: fixed; transform: translateX(-100%); height: 100%; box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
+            .sidebar.open { transform: translateX(0); }
+            .mobile-toggle { display: block; }
+            .search-bar { display: none; }
+            .topbar { padding: 0 1.5rem; }
+            .view-container { padding: 1rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- SIDEBAR -->
+        <nav class="sidebar" id="sidebar">
+            <div class="logo"><i class="ph-fill ph-calculator"></i><span>Calcutooly</span></div>
+            <ul class="nav-links">
+                <li><div class="nav-section-title">Chapters</div></li>
+                <li><button onclick="navigate('home', 'top')" class="nav-btn active" data-target="top"><i class="ph ph-squares-four"></i> Dashboard (All)</button></li>
+                <li><button onclick="navigate('home', 'cat-basic')" class="nav-btn" data-target="cat-basic"><i class="ph ph-plus-minus"></i> Basic Arithmetic</button></li>
+                <li><button onclick="navigate('home', 'cat-number')" class="nav-btn" data-target="cat-number"><i class="ph ph-infinity"></i> Number Theory</button></li>
+                <li><button onclick="navigate('home', 'cat-exp')" class="nav-btn" data-target="cat-exp"><i class="ph ph-radical"></i> Exponents & Roots</button></li>
+                
+                <li><div class="nav-section-title">App Menu</div></li>
+                <li><button onclick="navigate('history')" class="nav-btn" data-target="history"><i class="ph ph-clock-counter-clockwise"></i> History Log</button></li>
+                <li><button onclick="navigate('settings')" class="nav-btn" data-target="settings"><i class="ph ph-gear"></i> Settings</button></li>
+            </ul>
+        </nav>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <header class="topbar">
+                <button class="mobile-toggle" onclick="toggleSidebar()"><i class="ph ph-list"></i></button>
+                <div class="search-bar">
+                    <i class="ph ph-magnifying-glass" style="color: var(--text-muted)"></i>
+                    <input type="text" placeholder="Search maths operations...">
+                </div>
+                <div class="topbar-actions"><button class="icon-btn" onclick="toggleTheme()"><i class="ph ph-moon" id="theme-icon"></i></button></div>
+            </header>
+
+            <div class="view-container" id="main-scroll">
+                <!-- DASHBOARD -->
+                <section id="view-home" class="view active">
+                    <div class="welcome-banner" id="top">
+                        <h1>Pure Maths Core</h1>
+                        <p style="opacity: 0.9;">59 precise arithmetic, number theory, fraction, and logarithmic functions.</p>
+                    </div>
+                    
+                    <!-- 1. BASIC ARITHMETIC -->
+                    <h2 class="section-title" id="cat-basic"><i class="ph-fill ph-plus-minus"></i> Basic Arithmetic & Core Operations</h2>
+                    <div class="calc-grid" style="margin-bottom: 2.5rem;">
+                        <div class="calc-card" onclick="openOp('add')"><div class="card-icon"><i class="ph ph-plus"></i></div><h3>Add</h3><p>Sum of A and B</p></div>
+                        <div class="calc-card" onclick="openOp('sub')"><div class="card-icon"><i class="ph ph-minus"></i></div><h3>Subtract</h3><p>Difference of A and B</p></div>
+                        <div class="calc-card" onclick="openOp('mul')"><div class="card-icon"><i class="ph ph-x"></i></div><h3>Multiply</h3><p>Product of A and B</p></div>
+                        <div class="calc-card" onclick="openOp('div')"><div class="card-icon"><i class="ph ph-divide"></i></div><h3>Divide</h3><p>A divided by B</p></div>
+                        <div class="calc-card" onclick="openOp('mod')"><div class="card-icon"><i class="ph ph-percent"></i></div><h3>Modulo</h3><p>True mathematical modulo</p></div>
+                        <div class="calc-card" onclick="openOp('rem')"><div class="card-icon"><i class="ph ph-arrows-split"></i></div><h3>Remainder</h3><p>Standard division remainder</p></div>
+                        <div class="calc-card" onclick="openOp('quo')"><div class="card-icon"><i class="ph ph-hash"></i></div><h3>Quotient</h3><p>Integer division result</p></div>
+                        <div class="calc-card" onclick="openOp('plusminus')"><div class="card-icon"><i class="ph ph-plus-minus"></i></div><h3>Plus-Minus</h3><p>Returns A+B and A-B</p></div>
+                        <div class="calc-card" onclick="openOp('abs')"><div class="card-icon"><i class="ph ph-brackets-square"></i></div><h3>Absolute Value</h3><p>Magnitude without sign</p></div>
+                        <div class="calc-card" onclick="openOp('neg')"><div class="card-icon"><i class="ph ph-arrow-u-down-left"></i></div><h3>Negation</h3><p>Reverse the sign</p></div>
+                        <div class="calc-card" onclick="openOp('recip')"><div class="card-icon"><i class="ph ph-arrows-down-up"></i></div><h3>Reciprocal</h3><p>Multiplicative inverse (1/x)</p></div>
+                        <div class="calc-card" onclick="openOp('ceil')"><div class="card-icon"><i class="ph ph-arrow-line-up"></i></div><h3>Ceiling</h3><p>Round up to integer</p></div>
+                        <div class="calc-card" onclick="openOp('floor')"><div class="card-icon"><i class="ph ph-arrow-line-down"></i></div><h3>Floor</h3><p>Round down to integer</p></div>
+                        <div class="calc-card" onclick="openOp('round')"><div class="card-icon"><i class="ph ph-circle-half"></i></div><h3>Round</h3><p>Round to nearest integer</p></div>
+                        <div class="calc-card" onclick="openOp('trunc')"><div class="card-icon"><i class="ph ph-scissors"></i></div><h3>Truncate</h3><p>Remove fractional digits</p></div>
+                        <div class="calc-card" onclick="openOp('sgn')"><div class="card-icon"><i class="ph ph-arrows-left-right"></i></div><h3>Signum (Sgn)</h3><p>Extract the sign (-1, 0, 1)</p></div>
+                        <div class="calc-card" onclick="openOp('intpart')"><div class="card-icon"><i class="ph ph-number-square-one"></i></div><h3>Integer Part</h3><p>Integer portion of number</p></div>
+                        <div class="calc-card" onclick="openOp('fracpart')"><div class="card-icon"><i class="ph ph-dots-three"></i></div><h3>Fractional Part</h3><p>Decimal portion of number</p></div>
+                    </div>
+
+                    <!-- 2. NUMBER THEORY & FRACTIONS -->
+                    <h2 class="section-title" id="cat-number"><i class="ph-fill ph-infinity"></i> Number Theory & Fractions</h2>
+                    <div class="calc-grid" style="margin-bottom: 2.5rem;">
+                        <div class="calc-card" onclick="openOp('gcd')"><div class="card-icon"><i class="ph ph-intersect"></i></div><h3>GCD</h3><p>Greatest Common Divisor</p></div>
+                        <div class="calc-card" onclick="openOp('lcm')"><div class="card-icon"><i class="ph ph-graph"></i></div><h3>LCM</h3><p>Least Common Multiple</p></div>
+                        <div class="calc-card" onclick="openOp('pfact')"><div class="card-icon"><i class="ph ph-tree-structure"></i></div><h3>Prime Factorization</h3><p>Breakdown into primes</p></div>
+                        <div class="calc-card" onclick="openOp('isprime')"><div class="card-icon"><i class="ph ph-check-square-offset"></i></div><h3>Is Prime</h3><p>Check if prime number</p></div>
+                        <div class="calc-card" onclick="openOp('coprime')"><div class="card-icon"><i class="ph ph-git-merge"></i></div><h3>Coprime Check</h3><p>Check if GCD(A, B) = 1</p></div>
+                        <div class="calc-card" onclick="openOp('modinv')"><div class="card-icon"><i class="ph ph-arrows-out-line-vertical"></i></div><h3>Modulo Inverse</h3><p>Find x in ax ≡ 1 (mod m)</p></div>
+                        <div class="calc-card" onclick="openOp('divcount')"><div class="card-icon"><i class="ph ph-list-numbers"></i></div><h3>Number of Divisors</h3><p>Total factors d(n)</p></div>
+                        <div class="calc-card" onclick="openOp('divsum')"><div class="card-icon"><i class="ph ph-sigma"></i></div><h3>Sum of Divisors</h3><p>Total sum σ(n)</p></div>
+                        <div class="calc-card" onclick="openOp('totient')"><div class="card-icon"><i class="ph ph-circle-dashed"></i></div><h3>Euler’s Totient</h3><p>φ(n) calculation</p></div>
+                        <div class="calc-card" onclick="openOp('mobius')"><div class="card-icon"><i class="ph ph-waveform"></i></div><h3>Möbius Function</h3><p>μ(n) evaluation (-1, 0, 1)</p></div>
+                        <div class="calc-card" onclick="openOp('fibo')"><div class="card-icon"><i class="ph ph-spiral"></i></div><h3>Fibonacci Number</h3><p>Nth term of sequence</p></div>
+                        <div class="calc-card" onclick="openOp('lucas')"><div class="card-icon"><i class="ph ph-activity"></i></div><h3>Lucas Number</h3><p>Nth term of Lucas</p></div>
+                        <div class="calc-card" onclick="openOp('catalan')"><div class="card-icon"><i class="ph ph-chart-scatter"></i></div><h3>Catalan Number</h3><p>Combinatorial sequence</p></div>
+                        <div class="calc-card" onclick="openOp('pell')"><div class="card-icon"><i class="ph ph-chart-line"></i></div><h3>Pell Number</h3><p>Denominators of √2</p></div>
+                        <div class="calc-card" onclick="openOp('perrin')"><div class="card-icon"><i class="ph ph-pulse"></i></div><h3>Perrin Number</h3><p>Prime divisibility test</p></div>
+                        <div class="calc-card" onclick="openOp('padovan')"><div class="card-icon"><i class="ph ph-triangle"></i></div><h3>Padovan Number</h3><p>Spiral of equilateral triangles</p></div>
+                        <div class="calc-card" onclick="openOp('carmichael')"><div class="card-icon"><i class="ph ph-asterisk"></i></div><h3>Carmichael Function</h3><p>λ(n) Reduced Totient</p></div>
+                        <div class="calc-card" onclick="openOp('fracsimp')"><div class="card-icon"><i class="ph ph-arrows-in-line-horizontal"></i></div><h3>Fraction Simplify</h3><p>Reduce to lowest terms</p></div>
+                        <div class="calc-card" onclick="openOp('properchk')"><div class="card-icon"><i class="ph ph-scales"></i></div><h3>Proper Fraction Check</h3><p>Is Numerator < Denominator?</p></div>
+                        <div class="calc-card" onclick="openOp('improper')"><div class="card-icon"><i class="ph ph-stack"></i></div><h3>Improper Fraction</h3><p>Mixed to Improper</p></div>
+                        <div class="calc-card" onclick="openOp('mixed')"><div class="card-icon"><i class="ph ph-squares-four"></i></div><h3>Mixed Number</h3><p>Improper to Mixed</p></div>
+                        <div class="calc-card" onclick="openOp('contfrac')"><div class="card-icon"><i class="ph ph-list-dashes"></i></div><h3>Continued Fraction</h3><p>Sequence of denominators</p></div>
+                        <div class="calc-card" onclick="openOp('egyptfrac')"><div class="card-icon"><i class="ph ph-pyramid"></i></div><h3>Egyptian Fraction</h3><p>Sum of distinct unit fractions</p></div>
+                        <div class="calc-card" onclick="openOp('farey')"><div class="card-icon"><i class="ph ph-sort-ascending"></i></div><h3>Farey Sequence</h3><p>Generate ordered fractions</p></div>
+                        <div class="calc-card" onclick="openOp('sternbrocot')"><div class="card-icon"><i class="ph ph-git-branch"></i></div><h3>Stern-Brocot Tree</h3><p>Find path to fraction</p></div>
+                    </div>
+
+                    <!-- 3. EXONENTS, ROOTS & LOGARITHMS -->
+                    <h2 class="section-title" id="cat-exp"><i class="ph-fill ph-radical"></i> Exponents, Roots & Logarithms</h2>
+                    <div class="calc-grid" style="margin-bottom: 2.5rem;">
+                        <div class="calc-card" onclick="openOp('sq')"><div class="card-icon"><i class="ph ph-number-square-two"></i></div><h3>Square</h3><p>x² (Value multiplied by itself)</p></div>
+                        <div class="calc-card" onclick="openOp('cube')"><div class="card-icon"><i class="ph ph-number-square-three"></i></div><h3>Cube</h3><p>x³ (Value cubed)</p></div>
+                        <div class="calc-card" onclick="openOp('sqrt')"><div class="card-icon"><i class="ph ph-square-half"></i></div><h3>Square Root</h3><p>√x (Principal root)</p></div>
+                        <div class="calc-card" onclick="openOp('cbrt')"><div class="card-icon"><i class="ph ph-cube"></i></div><h3>Cube Root</h3><p>∛x (Root to power 3)</p></div>
+                        <div class="calc-card" onclick="openOp('nroot')"><div class="card-icon"><i class="ph ph-tree-structure"></i></div><h3>Nth Root</h3><p>ⁿ√x (Root to power N)</p></div>
+                        <div class="calc-card" onclick="openOp('pow')"><div class="card-icon"><i class="ph ph-function"></i></div><h3>Exponentiation</h3><p>xⁿ (Base to power n)</p></div>
+                        <div class="calc-card" onclick="openOp('ln')"><div class="card-icon"><i class="ph ph-math-operations"></i></div><h3>Natural Log (ln)</h3><p>Logarithm to base e</p></div>
+                        <div class="calc-card" onclick="openOp('log10')"><div class="card-icon"><i class="ph ph-list-numbers"></i></div><h3>Common Log</h3><p>Logarithm to base 10</p></div>
+                        <div class="calc-card" onclick="openOp('log2')"><div class="card-icon"><i class="ph ph-binary"></i></div><h3>Binary Log</h3><p>Logarithm to base 2</p></div>
+                        <div class="calc-card" onclick="openOp('logn')"><div class="card-icon"><i class="ph ph-variable"></i></div><h3>Base-N Log</h3><p>Logarithm to any base</p></div>
+                        <div class="calc-card" onclick="openOp('alog')"><div class="card-icon"><i class="ph ph-arrows-merge"></i></div><h3>Antilogarithm</h3><p>10ˣ (Inverse of Log10)</p></div>
+                        <div class="calc-card" onclick="openOp('powe')"><div class="card-icon"><i class="ph ph-letter-circle-e"></i></div><h3>Power of e</h3><p>eˣ (Exponential function)</p></div>
+                        <div class="calc-card" onclick="openOp('pow10')"><div class="card-icon"><i class="ph ph-circles-three-plus"></i></div><h3>Power of 10</h3><p>10ˣ (Scientific notation)</p></div>
+                        <div class="calc-card" onclick="openOp('pow2')"><div class="card-icon"><i class="ph ph-parallelogram"></i></div><h3>Power of 2</h3><p>2ˣ (Binary scaling)</p></div>
+                        <div class="calc-card" onclick="openOp('tetra')"><div class="card-icon"><i class="ph ph-arrow-fat-lines-up"></i></div><h3>Tetration</h3><p>ⁿa (Iterated exponentiation)</p></div>
+                        <div class="calc-card" onclick="openOp('lambertw')"><div class="card-icon"><i class="ph ph-bezier-curve"></i></div><h3>Lambert W</h3><p>W(x) function solver</p></div>
+                    </div>
+                </section>
+
+                <!-- CALCULATOR MOUNT -->
+                <section id="view-calculator" class="view">
+                    <button class="back-btn" onclick="navigate('home')"><i class="ph ph-arrow-left"></i> Back</button>
+                    <div id="calculator-mount" class="calculator-container"></div>
+                </section>
+
+                <!-- HISTORY -->
+                <section id="view-history" class="view">
+                    <div class="page-header"><h2 class="section-title" style="margin:0"><i class="ph-fill ph-clock-counter-clockwise"></i> Activity Log</h2><button class="btn-danger" onclick="clearHistory()"><i class="ph ph-trash"></i> Clear All</button></div>
+                    <div id="history-list" class="history-list"></div>
+                </section>
+
+                <!-- SETTINGS -->
+                <section id="view-settings" class="view">
+                    <h2 class="section-title" style="max-width:800px; margin: 0 auto 1.5rem auto;"><i class="ph-fill ph-gear"></i> Preferences</h2>
+                    <div class="settings-group">
+                        <div class="setting-item"><div><h3 style="margin-bottom: 5px; font-weight: 600;">Dark Mode</h3><p style="font-size: 0.9rem; color: var(--text-muted)">Toggle the premium dark theme.</p></div><label class="switch"><input type="checkbox" id="setting-theme" onchange="toggleTheme()"><span class="slider"></span></label></div>
+                        <div class="setting-item"><div><h3 style="margin-bottom: 5px; font-weight: 600;">Factory Reset</h3><p style="font-size: 0.9rem; color: var(--text-muted)">Erase all history and preferences.</p></div><button class="btn-danger" onclick="resetApp()">Erase Data</button></div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- =========================================
+         JAVASCRIPT LOGIC
+         ========================================= -->
+    <script>
+        // --- UI & Advanced Smart Navigation ---
+        function navigate(id, sectionId = null) {
+            const currentView = document.querySelector('.view.active');
+            const targetView = document.getElementById(`view-${id}`);
+            
+            // Highlight the correct sidebar button
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            const targetAttr = sectionId ? sectionId : id;
+            const activeBtn = document.querySelector(`[data-target="${targetAttr}"]`);
+            if (activeBtn) activeBtn.classList.add('active');
+            else {
+                const mainNav = document.querySelector(`[data-target="${id}"]`);
+                if(mainNav) mainNav.classList.add('active');
+            }
+
+            if (window.innerWidth <= 992) document.getElementById('sidebar').classList.remove('open');
+            if (id === 'history') loadHistory();
+
+            // Smart logic: If already on Dashboard, don't fade out, just smooth scroll instantly!
+            if (currentView === targetView) {
+                if (sectionId && sectionId !== 'top') {
+                    const sec = document.getElementById(sectionId);
+                    if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else if (id === 'home' || sectionId === 'top') {
+                    document.getElementById('main-scroll').scrollTo({top: 0, behavior: 'smooth'});
+                }
+                return;
+            }
+
+            // Otherwise, do standard page transition
+            document.querySelectorAll('.view').forEach(v => { 
+                v.style.opacity = '0'; 
+                setTimeout(() => v.classList.remove('active'), 300); 
+            });
+            
+            setTimeout(() => { 
+                targetView.classList.add('active'); 
+                targetView.style.opacity = '1'; 
+                
+                // Once transition finishes, scroll to chapter if requested
+                if (sectionId && sectionId !== 'top') {
+                    const sec = document.getElementById(sectionId);
+                    if (sec) setTimeout(() => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+                } else if (id === 'home' || sectionId === 'top') {
+                    document.getElementById('main-scroll').scrollTo({top: 0, behavior: 'smooth'});
+                }
+            }, 300);
+        }
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        function toggleTheme() { const html=document.documentElement; const nt=html.getAttribute('data-theme')==='light'?'dark':'light'; html.setAttribute('data-theme',nt); localStorage.setItem('calc-theme',nt); document.getElementById('theme-icon').className=nt==='dark'?'ph ph-sun':'ph ph-moon'; document.getElementById('setting-theme').checked=nt==='dark'; }
+        function initTheme() { const s=localStorage.getItem('calc-theme')||'light'; document.documentElement.setAttribute('data-theme',s); document.getElementById('theme-icon').className=s==='dark'?'ph ph-sun':'ph ph-moon'; document.getElementById('setting-theme').checked=s==='dark'; }
+
+        // --- History ---
+        function saveHistory(n,i,r) { let h=JSON.parse(localStorage.getItem('calc-history')||'[]'); h.unshift({id:Date.now(),name:n,inputs:i,result:r,date:new Date().toLocaleString('en-IN')}); if(h.length>100)h.pop(); localStorage.setItem('calc-history',JSON.stringify(h)); }
+        function loadHistory() { const l=document.getElementById('history-list'); const h=JSON.parse(localStorage.getItem('calc-history')||'[]'); if(h.length===0)return l.innerHTML='<div style="text-align:center; padding:3rem; color:var(--text-muted);">No history.</div>'; l.innerHTML=h.map(i=>`<div class="history-item"><div><div class="history-title">${i.name}</div><div class="history-date">${i.date} • ${i.inputs}</div></div><div class="history-res">${i.result}</div></div>`).join(''); }
+        function clearHistory() { localStorage.removeItem('calc-history'); loadHistory(); }
+        function resetApp() { if(confirm('Clear all data?')){localStorage.clear();location.reload();} }
+
+        // --- Configuration Mapping ---
+        const cfg = {
+            // Basic Arithmetic
+            add: { t:'Addition', h:`<div class="input-group"><label>Value A</label><input type="number" id="i1" step="any"></div><div class="input-group"><label>Value B</label><input type="number" id="i2" step="any"></div>`, f:'calcAdd' },
+            sub: { t:'Subtraction', h:`<div class="input-group"><label>Value A</label><input type="number" id="i1" step="any"></div><div class="input-group"><label>Value B</label><input type="number" id="i2" step="any"></div>`, f:'calcSub' },
+            mul: { t:'Multiplication', h:`<div class="input-group"><label>Value A</label><input type="number" id="i1" step="any"></div><div class="input-group"><label>Value B</label><input type="number" id="i2" step="any"></div>`, f:'calcMul' },
+            div: { t:'Division', h:`<div class="input-group"><label>Dividend (A)</label><input type="number" id="i1" step="any"></div><div class="input-group"><label>Divisor (B)</label><input type="number" id="i2" step="any"></div>`, f:'calcDiv' },
+            mod: { t:'Modulo', h:`<div class="input-group"><label>Value (A)</label><input type="number" id="i1" step="any"></div><div class="input-group"><label>Modulo (N)</label><input type="number" id="i2" step="any"></div>`, f:'calcMod' },
+            rem: { t:'Remainder', h:`<div class="input-group"><label>Dividend (A)</label><input type="number" id="i1" step="any"></div><div class="input-group"><label>Divisor (B)</label><input type="number" id="i2" step="any"></div>`, f:'calcRem' },
+            quo: { t:'Quotient', h:`<div class="input-group"><label>Dividend (A)</label><input type="number" id="i1" step="any"></div><div class="input-group"><label>Divisor (B)</label><input type="number" id="i2" step="any"></div>`, f:'calcQuo' },
+            plusminus: { t:'Plus-Minus', h:`<div class="input-group"><label>Base Value (A)</label><input type="number" id="i1" step="any"></div><div class="input-group"><label>Variance (B)</label><input type="number" id="i2" step="any"></div>`, f:'calcPM' },
+            abs: { t:'Absolute Value', h:`<div class="input-group"><label>Value (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcAbs' },
+            neg: { t:'Negation', h:`<div class="input-group"><label>Value (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcNeg' },
+            recip: { t:'Reciprocal', h:`<div class="input-group"><label>Value (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcRecip' },
+            ceil: { t:'Ceiling', h:`<div class="input-group"><label>Value (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcCeil' },
+            floor: { t:'Floor', h:`<div class="input-group"><label>Value (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcFloor' },
+            round: { t:'Round', h:`<div class="input-group"><label>Value (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcRound' },
+            trunc: { t:'Truncate', h:`<div class="input-group"><label>Value (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcTrunc' },
+            sgn: { t:'Signum', h:`<div class="input-group"><label>Value (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcSgn' },
+            intpart: { t:'Integer Part', h:`<div class="input-group"><label>Value (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcInt' },
+            fracpart: { t:'Fractional Part', h:`<div class="input-group"><label>Value (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcFrac' },
+
+            // Number Theory & Fractions
+            gcd: { t:'Greatest Common Divisor', h:`<div class="input-group"><label>Number A</label><input type="number" id="i1"></div><div class="input-group"><label>Number B</label><input type="number" id="i2"></div>`, f:'calcGCD' },
+            lcm: { t:'Least Common Multiple', h:`<div class="input-group"><label>Number A</label><input type="number" id="i1"></div><div class="input-group"><label>Number B</label><input type="number" id="i2"></div>`, f:'calcLCM' },
+            pfact: { t:'Prime Factorization', h:`<div class="input-group"><label>Positive Integer (N)</label><input type="number" id="i1" min="2"></div>`, f:'calcPFact' },
+            isprime: { t:'Is Prime?', h:`<div class="input-group"><label>Integer (N)</label><input type="number" id="i1"></div>`, f:'calcIsPrime' },
+            coprime: { t:'Coprime Check', h:`<div class="input-group"><label>Number A</label><input type="number" id="i1"></div><div class="input-group"><label>Number B</label><input type="number" id="i2"></div>`, f:'calcCoprime' },
+            modinv: { t:'Modulo Inverse', h:`<div class="input-group"><label>Number (A)</label><input type="number" id="i1"></div><div class="input-group"><label>Modulo (M)</label><input type="number" id="i2"></div>`, f:'calcModInv' },
+            divcount: { t:'Number of Divisors d(n)', h:`<div class="input-group"><label>Integer (N)</label><input type="number" id="i1" min="1"></div>`, f:'calcDivCount' },
+            divsum: { t:'Sum of Divisors σ(n)', h:`<div class="input-group"><label>Integer (N)</label><input type="number" id="i1" min="1"></div>`, f:'calcDivSum' },
+            totient: { t:'Euler’s Totient φ(n)', h:`<div class="input-group"><label>Integer (N)</label><input type="number" id="i1" min="1"></div>`, f:'calcTotient' },
+            mobius: { t:'Möbius Function μ(n)', h:`<div class="input-group"><label>Integer (N)</label><input type="number" id="i1" min="1"></div>`, f:'calcMobius' },
+            fibo: { t:'Fibonacci Number', h:`<div class="input-group"><label>Nth Term (N)</label><input type="number" id="i1" min="0"></div>`, f:'calcFibo' },
+            lucas: { t:'Lucas Number', h:`<div class="input-group"><label>Nth Term (N)</label><input type="number" id="i1" min="0"></div>`, f:'calcLucas' },
+            catalan: { t:'Catalan Number', h:`<div class="input-group"><label>Nth Term (N)</label><input type="number" id="i1" min="0" max="30"></div>`, f:'calcCatalan' },
+            pell: { t:'Pell Number', h:`<div class="input-group"><label>Nth Term (N)</label><input type="number" id="i1" min="0"></div>`, f:'calcPell' },
+            perrin: { t:'Perrin Number', h:`<div class="input-group"><label>Nth Term (N)</label><input type="number" id="i1" min="0"></div>`, f:'calcPerrin' },
+            padovan: { t:'Padovan Number', h:`<div class="input-group"><label>Nth Term (N)</label><input type="number" id="i1" min="0"></div>`, f:'calcPadovan' },
+            carmichael: { t:'Carmichael λ(n)', h:`<div class="input-group"><label>Integer (N)</label><input type="number" id="i1" min="1"></div>`, f:'calcCarmichael' },
+            fracsimp: { t:'Fraction Simplification', h:`<div class="input-group"><label>Numerator</label><input type="number" id="i1"></div><div class="input-group"><label>Denominator</label><input type="number" id="i2"></div>`, f:'calcFracSimp' },
+            properchk: { t:'Proper Fraction Check', h:`<div class="input-group"><label>Numerator</label><input type="number" id="i1"></div><div class="input-group"><label>Denominator</label><input type="number" id="i2"></div>`, f:'calcProper' },
+            improper: { t:'Mixed to Improper', h:`<div class="input-group"><label>Whole Number</label><input type="number" id="i1"></div><div class="input-group"><label>Numerator</label><input type="number" id="i2"></div><div class="input-group"><label>Denominator</label><input type="number" id="i3"></div>`, f:'calcImproper' },
+            mixed: { t:'Improper to Mixed', h:`<div class="input-group"><label>Numerator</label><input type="number" id="i1"></div><div class="input-group"><label>Denominator</label><input type="number" id="i2"></div>`, f:'calcMixed' },
+            contfrac: { t:'Continued Fraction', h:`<div class="input-group"><label>Numerator</label><input type="number" id="i1"></div><div class="input-group"><label>Denominator</label><input type="number" id="i2"></div>`, f:'calcContFrac' },
+            egyptfrac: { t:'Egyptian Fraction', h:`<div class="input-group"><label>Numerator</label><input type="number" id="i1"></div><div class="input-group"><label>Denominator</label><input type="number" id="i2"></div>`, f:'calcEgyptFrac' },
+            farey: { t:'Farey Sequence', h:`<div class="input-group"><label>Order N (Max 100)</label><input type="number" id="i1" min="1" max="100"></div>`, f:'calcFarey' },
+            sternbrocot: { t:'Stern-Brocot Tree Path', h:`<div class="input-group"><label>Numerator</label><input type="number" id="i1"></div><div class="input-group"><label>Denominator</label><input type="number" id="i2"></div>`, f:'calcSternBrocot' },
+
+            // Exponents, Roots & Logarithms
+            sq: { t:'Square', h:`<div class="input-group"><label>Value (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcSq' },
+            cube: { t:'Cube', h:`<div class="input-group"><label>Value (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcCube' },
+            sqrt: { t:'Square Root', h:`<div class="input-group"><label>Value (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcSqrt' },
+            cbrt: { t:'Cube Root', h:`<div class="input-group"><label>Value (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcCbrt' },
+            nroot: { t:'Nth Root', h:`<div class="input-group"><label>Root (n)</label><input type="number" id="i1" step="any"></div><div class="input-group"><label>Value (x)</label><input type="number" id="i2" step="any"></div>`, f:'calcNroot' },
+            pow: { t:'Exponentiation', h:`<div class="input-group"><label>Base (x)</label><input type="number" id="i1" step="any"></div><div class="input-group"><label>Exponent (n)</label><input type="number" id="i2" step="any"></div>`, f:'calcPow' },
+            ln: { t:'Natural Logarithm', h:`<div class="input-group"><label>Value (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcLn' },
+            log10: { t:'Common Logarithm', h:`<div class="input-group"><label>Value (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcLog10' },
+            log2: { t:'Binary Logarithm', h:`<div class="input-group"><label>Value (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcLog2' },
+            logn: { t:'Base-N Logarithm', h:`<div class="input-group"><label>Base (n)</label><input type="number" id="i1" step="any"></div><div class="input-group"><label>Value (x)</label><input type="number" id="i2" step="any"></div>`, f:'calcLogN' },
+            alog: { t:'Antilogarithm', h:`<div class="input-group"><label>Value (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcAlog' },
+            powe: { t:'Power of e', h:`<div class="input-group"><label>Exponent (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcPowE' },
+            pow10: { t:'Power of 10', h:`<div class="input-group"><label>Exponent (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcPow10' },
+            pow2: { t:'Power of 2', h:`<div class="input-group"><label>Exponent (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcPow2' },
+            tetra: { t:'Tetration', h:`<div class="input-group"><label>Base (a)</label><input type="number" id="i1" step="any"></div><div class="input-group"><label>Height (n)</label><input type="number" id="i2" step="1" min="0"></div>`, f:'calcTetra' },
+            lambertw: { t:'Lambert W Function', h:`<div class="input-group"><label>Value (x)</label><input type="number" id="i1" step="any"></div>`, f:'calcLambertW' }
+        };
+
+        function openOp(id) {
+            const c = cfg[id]; if(!c) return;
+            document.getElementById('calculator-mount').innerHTML = `
+                <h2 style="margin-bottom:1.5rem; font-weight:700;">${c.t}</h2>
+                ${c.h} <button class="btn-primary" onclick="${c.f}()">Calculate</button>
+                <div class="result-box" id="res-box" style="display:none"><h3>Result</h3><div class="result-value" id="res-val"></div><div id="res-sub" style="margin-top:12px;color:var(--text-muted); line-height: 1.5;"></div></div>
+            `;
+            navigate('calculator');
+        }
+
+        // Helpers
+        function showRes(m, s='') { document.getElementById('res-val').innerHTML=m; document.getElementById('res-sub').innerHTML=s; const b=document.getElementById('res-box'); b.style.display='block'; b.style.animation='none'; b.offsetHeight; b.style.animation='slideUp 0.4s ease forwards'; }
+        function v(id) { const el=document.getElementById(id); return el && el.value !== '' ? parseFloat(el.value) : null; }
+        const gcd = (a, b) => b === 0 ? Math.abs(a) : gcd(b, a % b);
+        
+        // --- 1. BASIC ARITHMETIC ---
+        function calcAdd() { const a=v('i1'), b=v('i2'); if(a!==null&&b!==null){ const r=a+b; showRes(r); saveHistory('Add', `${a} + ${b}`, r); } }
+        function calcSub() { const a=v('i1'), b=v('i2'); if(a!==null&&b!==null){ const r=a-b; showRes(r); saveHistory('Subtract', `${a} - ${b}`, r); } }
+        function calcMul() { const a=v('i1'), b=v('i2'); if(a!==null&&b!==null){ const r=a*b; showRes(r); saveHistory('Multiply', `${a} × ${b}`, r); } }
+        function calcDiv() { const a=v('i1'), b=v('i2'); if(a!==null&&b!==null){ if(b===0) return alert("Cannot divide by zero."); const r=a/b; showRes(r); saveHistory('Divide', `${a} ÷ ${b}`, r); } }
+        function calcMod() { const a=v('i1'), b=v('i2'); if(a!==null&&b!==null){ if(b===0) return alert("Modulo by zero undefined."); const r=((a%b)+b)%b; showRes(r, `Formula: ((A % N) + N) % N`); saveHistory('Modulo', `${a} mod ${b}`, r); } }
+        function calcRem() { const a=v('i1'), b=v('i2'); if(a!==null&&b!==null){ if(b===0) return alert("Cannot divide by zero."); const r=a%b; showRes(r, `Formula: A % B`); saveHistory('Remainder', `${a} % ${b}`, r); } }
+        function calcQuo() { const a=v('i1'), b=v('i2'); if(a!==null&&b!==null){ if(b===0) return alert("Cannot divide by zero."); const r=Math.trunc(a/b); showRes(r); saveHistory('Quotient', `${a} // ${b}`, r); } }
+        function calcPM() { const a=v('i1'), b=v('i2'); if(a!==null&&b!==null){ const r1=a+b, r2=a-b; showRes(`+ : ${r1}<br>- : ${r2}`); saveHistory('Plus-Minus', `${a} ± ${b}`, `+${r1} / -${r2}`); } }
+        function calcAbs() { const a=v('i1'); if(a!==null){ const r=Math.abs(a); showRes(r); saveHistory('Absolute', `|${a}|`, r); } }
+        function calcNeg() { const a=v('i1'); if(a!==null){ const r=-a; showRes(r); saveHistory('Negation', `-${a}`, r); } }
+        function calcRecip() { const a=v('i1'); if(a!==null){ if(a===0) return alert("Reciprocal of 0 is undefined."); const r=1/a; showRes(r); saveHistory('Reciprocal', `1/${a}`, r); } }
+        function calcCeil() { const a=v('i1'); if(a!==null){ const r=Math.ceil(a); showRes(r); saveHistory('Ceiling', `⌈${a}⌉`, r); } }
+        function calcFloor() { const a=v('i1'); if(a!==null){ const r=Math.floor(a); showRes(r); saveHistory('Floor', `⌊${a}⌋`, r); } }
+        function calcRound() { const a=v('i1'); if(a!==null){ const r=Math.round(a); showRes(r); saveHistory('Round', `≈ ${a}`, r); } }
+        function calcTrunc() { const a=v('i1'); if(a!==null){ const r=Math.trunc(a); showRes(r); saveHistory('Truncate', `trunc(${a})`, r); } }
+        function calcSgn() { const a=v('i1'); if(a!==null){ const r=Math.sign(a); showRes(r, r===1?'Positive':r===-1?'Negative':'Zero'); saveHistory('Signum', `sgn(${a})`, r); } }
+        function calcInt() { const a=v('i1'); if(a!==null){ const r=Math.trunc(a); showRes(r); saveHistory('Int Part', `int(${a})`, r); } }
+        function calcFrac() { const a=v('i1'); if(a!==null){ const r=(a-Math.trunc(a)).toFixed(6).replace(/\.?0+$/,'') || 0; showRes(r); saveHistory('Frac Part', `frac(${a})`, r); } }
+
+        // --- 2. NUMBER THEORY & FRACTIONS ---
+        function calcGCD() { const a=v('i1'), b=v('i2'); if(a!==null&&b!==null){ const r=gcd(a,b); showRes(r); saveHistory('GCD', `gcd(${a},${b})`, r); } }
+        function calcLCM() { const a=v('i1'), b=v('i2'); if(a!==null&&b!==null){ const r=Math.abs(a*b)/gcd(a,b); showRes(r); saveHistory('LCM', `lcm(${a},${b})`, r); } }
+        function calcPFact() { 
+            let n=v('i1'); if(!n||n<2) return; let on=n, f=[]; let d=2;
+            while(n>=2){ while(n%d===0){f.push(d); n/=d;} d++; if(d*d>n){ if(n>1)f.push(n); break; } }
+            showRes(f.join(' × '), 'Prime Factors'); saveHistory('P-Fact', on, f.join('*')); 
+        }
+        function calcIsPrime() { 
+            const n=Math.abs(v('i1')); if(n===null) return; 
+            let p=true; if(n<2)p=false; else { for(let i=2; i*i<=n; i++){ if(n%i===0){p=false; break;} } }
+            showRes(p?'Yes, Prime':'No, Composite'); saveHistory('Is Prime', n, p?'Yes':'No'); 
+        }
+        function calcCoprime() { const a=v('i1'), b=v('i2'); if(a!==null&&b!==null){ const p=(gcd(a,b)===1); showRes(p?'Yes, Coprime':'No'); saveHistory('Coprime', `${a}, ${b}`, p?'Yes':'No'); } }
+        function calcModInv() { 
+            const a=v('i1'), m=v('i2'); if(a===null||m===null) return;
+            let m0=m, y=0, x=1, t, q, a0=a;
+            if(m===1) return showRes(0);
+            while(a0>1){ q=Math.floor(a0/m0); t=m0; m0=a0%m0; a0=t; t=y; y=x-q*y; x=t; }
+            if(x<0) x+=m;
+            if(gcd(a,m)!==1) showRes('No Inverse', `${a} and ${m} are not coprime.`); else { showRes(x); saveHistory('Mod Inv', `${a} mod ${m}`, x); }
+        }
+        function calcDivCount() { 
+            const n=Math.abs(v('i1')); if(!n) return; let c=0; 
+            for(let i=1; i*i<=n; i++) { if(n%i===0) { c++; if(i*i!==n) c++; } }
+            showRes(c); saveHistory('Div Count', n, c); 
+        }
+        function calcDivSum() { 
+            const n=Math.abs(v('i1')); if(!n) return; let s=0; 
+            for(let i=1; i*i<=n; i++) { if(n%i===0) { s+=i; if(i*i!==n) s+=(n/i); } }
+            showRes(s); saveHistory('Div Sum', n, s); 
+        }
+        function calcTotient() { 
+            let n=Math.abs(v('i1')); if(!n) return; let r=n, on=n;
+            for(let i=2; i*i<=n; ++i){ if(n%i===0){ while(n%i===0) n/=i; r-=r/i; } }
+            if(n>1) r-=r/n; showRes(r); saveHistory('Totient', on, r); 
+        }
+        function calcMobius() { 
+            let n=Math.abs(v('i1')); if(!n) return; let on=n; if(n===1){showRes(1); return;}
+            let p=0; for(let i=2; i<=Math.sqrt(n); i++){ if(n%i===0){ if(n%(i*i)===0) return showRes(0, 'Has squared prime factor'); p++; n/=i; } }
+            if(n>1) p++; let r = p%2!==0 ? -1 : 1; showRes(r); saveHistory('Möbius', on, r); 
+        }
+        function calcFibo() { const n=v('i1'); if(n===null||n<0)return; let a=0, b=1, t; if(n===0)return showRes(0); for(let i=2; i<=n; i++){t=a+b; a=b; b=t;} showRes(b); saveHistory('Fibonacci', `F_${n}`, b); }
+        function calcLucas() { const n=v('i1'); if(n===null||n<0)return; let a=2, b=1, t; if(n===0)return showRes(2); for(let i=2; i<=n; i++){t=a+b; a=b; b=t;} showRes(b); saveHistory('Lucas', `L_${n}`, b); }
+        function calcCatalan() { 
+            const n=v('i1'); if(n===null||n<0||n>30) return alert('Keep n between 0 and 30'); 
+            let r=1; for(let k=2; k<=n; k++) r*=(n+k)/k; showRes(Math.round(r)); saveHistory('Catalan', `C_${n}`, Math.round(r)); 
+        }
+        function calcPell() { const n=v('i1'); if(n===null||n<0)return; let a=0, b=1, t; if(n===0)return showRes(0); for(let i=2; i<=n; i++){t=2*b+a; a=b; b=t;} showRes(b); saveHistory('Pell', `P_${n}`, b); }
+        function calcPerrin() { const n=v('i1'); if(n===null||n<0)return; let p=[3,0,2]; if(n<3)return showRes(p[n]); for(let i=3; i<=n; i++) p[i]=p[i-2]+p[i-3]; showRes(p[n]); saveHistory('Perrin', n, p[n]); }
+        function calcPadovan() { const n=v('i1'); if(n===null||n<0)return; let p=[1,1,1]; if(n<3)return showRes(p[n]); for(let i=3; i<=n; i++) p[i]=p[i-2]+p[i-3]; showRes(p[n]); saveHistory('Padovan', n, p[n]); }
+        function calcCarmichael() { 
+            let n=v('i1'); if(!n||n<1) return; let on=n;
+            function lcmArr(arr){ return arr.reduce((a,b)=>(a*b)/gcd(a,b)); }
+            let f=[]; let d=2;
+            while(n>=2){ let c=0; while(n%d===0){c++; n/=d;} if(c>0) f.push({p:d, k:c}); d++; if(d*d>n){ if(n>1)f.push({p:n, k:1}); break; } }
+            if(on===1) { showRes(1); return; }
+            let lams = f.map(x => {
+                if(x.p===2 && x.k>=3) return Math.pow(2, x.k-2);
+                return Math.pow(x.p, x.k-1)*(x.p-1);
+            });
+            let r = lcmArr(lams); showRes(r); saveHistory('Carmichael', on, r);
+        }
+        function calcFracSimp() { const n=v('i1'), d=v('i2'); if(n!==null&&d!==null&&d!==0){ const g=gcd(n,d); showRes(`${n/g} / ${d/g}`); saveHistory('Simplify', `${n}/${d}`, `${n/g}/${d/g}`); } }
+        function calcProper() { const n=Math.abs(v('i1')), d=Math.abs(v('i2')); if(n!==null&&d!==null&&d!==0){ const p=n<d; showRes(p?'Proper Fraction':'Improper / Mixed'); saveHistory('Proper?', `${n}/${d}`, p?'Proper':'Improper'); } }
+        function calcImproper() { const w=v('i1'), n=v('i2'), d=v('i3'); if(w!==null&&n!==null&&d!==null){ const r = w*d+n; showRes(`${r} / ${d}`); saveHistory('To Improper', `${w} ${n}/${d}`, `${r}/${d}`); } }
+        function calcMixed() { const n=v('i1'), d=v('i2'); if(n!==null&&d!==null&&d!==0){ const w=Math.floor(n/d), r=n%d; showRes(r===0?`${w}`:`${w} ${r}/${d}`); saveHistory('To Mixed', `${n}/${d}`, `${w} ${r}/${d}`); } }
+        function calcContFrac() { 
+            let n=v('i1'), d=v('i2'); if(n===null||d===null||d===0) return; let res=[], on=n, od=d;
+            while(d!==0 && res.length<20) { let a=Math.floor(n/d); res.push(a); let t=n%d; n=d; d=t; }
+            showRes(`[${res[0]}; ${res.slice(1).join(', ')}]`); saveHistory('Cont Frac', `${on}/${od}`, res.join(','));
+        }
+        function calcEgyptFrac() {
+            let n=v('i1'), d=v('i2'); if(n===null||d===null||d===0) return; let res=[], on=n, od=d;
+            if(n>=d) return alert("Must be a proper fraction (Numerator < Denominator)");
+            while(n!==0 && res.length<15) { let x=Math.ceil(d/n); res.push(`1/${x}`); n=x*n-d; d=d*x; }
+            showRes(res.join(' + ')); saveHistory('Egypt Frac', `${on}/${od}`, res.join('+'));
+        }
+        function calcFarey() {
+            let n=v('i1'); if(!n||n>100) return alert("Keep order ≤ 100");
+            let a=0, b=1, c=1, d=n, res=["0/1"];
+            while(c<=n) { let k=Math.floor((n+b)/d), tA=a, tB=b; a=c; b=d; c=k*c-tA; d=k*d-tB; res.push(`${a}/${b}`); }
+            showRes(`<div style="font-size:1rem; line-height:1.5;">${res.join(', ')}</div>`, `Sequence length: ${res.length}`);
+            saveHistory('Farey', `F_${n}`, `${res.length} fractions`);
+        }
+        function calcSternBrocot() {
+            let n=v('i1'), d=v('i2'); if(n===null||d===null||d===0) return;
+            let lN=0, lD=1, rN=1, rD=0, mN=1, mD=1, path="";
+            while(mN!==n || mD!==d) {
+                if(path.length>20) { path+="..."; break; }
+                if(n*mD < d*mN) { path+="L"; rN=mN; rD=mD; } else { path+="R"; lN=mN; lD=mD; }
+                mN=lN+rN; mD=lD+rD;
+            }
+            showRes(path || 'Root (1/1)'); saveHistory('Stern-Brocot', `${n}/${d}`, path);
+        }
+
+        // --- 3. EXPONENTS, ROOTS & LOGARITHMS ---
+        function calcSq() { const x=v('i1'); if(x!==null){ const r=x*x; showRes(r); saveHistory('Square', `${x}²`, r); } }
+        function calcCube() { const x=v('i1'); if(x!==null){ const r=x*x*x; showRes(r); saveHistory('Cube', `${x}³`, r); } }
+        function calcSqrt() { const x=v('i1'); if(x!==null){ if(x<0) return alert("Root of negative is imaginary."); const r=Math.sqrt(x); showRes(r); saveHistory('Sq Root', `√${x}`, r); } }
+        function calcCbrt() { const x=v('i1'); if(x!==null){ const r=Math.cbrt(x); showRes(r); saveHistory('Cube Root', `∛${x}`, r); } }
+        function calcNroot() { const n=v('i1'), x=v('i2'); if(n!==null&&x!==null){ if(n===0) return; let r; if(x<0){if(n%2!==0)r=-Math.pow(-x,1/n); else return;} else r=Math.pow(x,1/n); showRes(r); saveHistory('Nth Root', `${n}√${x}`, r); } }
+        function calcPow() { const x=v('i1'), n=v('i2'); if(x!==null&&n!==null){ const r=Math.pow(x,n); showRes(r); saveHistory('Power', `${x}^${n}`, r); } }
+        function calcLn() { const x=v('i1'); if(x!==null&&x>0){ const r=Math.log(x); showRes(r); saveHistory('ln', `ln(${x})`, r); } }
+        function calcLog10() { const x=v('i1'); if(x!==null&&x>0){ const r=Math.log10(x); showRes(r); saveHistory('log10', `log10(${x})`, r); } }
+        function calcLog2() { const x=v('i1'); if(x!==null&&x>0){ const r=Math.log2(x); showRes(r); saveHistory('log2', `log2(${x})`, r); } }
+        function calcLogN() { const n=v('i1'), x=v('i2'); if(n!==null&&x!==null&&x>0&&n>0&&n!==1){ const r=Math.log(x)/Math.log(n); showRes(r); saveHistory('logN', `log_${n}(${x})`, r); } }
+        function calcAlog() { const x=v('i1'); if(x!==null){ const r=Math.pow(10,x); showRes(r); saveHistory('Antilog', `10^${x}`, r); } }
+        function calcPowE() { const x=v('i1'); if(x!==null){ const r=Math.exp(x); showRes(r); saveHistory('e^x', `e^${x}`, r); } }
+        function calcPow10() { const x=v('i1'); if(x!==null){ const r=Math.pow(10,x); showRes(r); saveHistory('10^x', `10^${x}`, r); } }
+        function calcPow2() { const x=v('i1'); if(x!==null){ const r=Math.pow(2,x); showRes(r); saveHistory('2^x', `2^${x}`, r); } }
+        function calcTetra() { const a=v('i1'), n=v('i2'); if(a!==null&&n!==null&&n>=0&&Number.isInteger(n)){ if(n>10||(a>5&&n>3))return; let r=1; for(let i=0;i<n;i++)r=Math.pow(a,r); showRes(r); saveHistory('Tetration', `${a} ↑↑ ${n}`, r); } }
+        function calcLambertW() { const x=v('i1'); if(x!==null&&x>=-Math.exp(-1)){ if(x===0)return showRes(0); let w=x<1?x:Math.log(x)-Math.log(Math.log(x)); for(let i=0;i<100;i++){let ew=Math.exp(w),wew=w*ew; let dw=(wew-x)/(ew*(w+1)-(w+2)*(wew-x)/(2*w+2)); w-=dw; if(Math.abs(dw)<1e-12)break;} showRes(w); saveHistory('Lambert W', `W(${x})`, w); } }
+
+        document.addEventListener('DOMContentLoaded', initTheme);
+    </script>
+</body>
+</html>
